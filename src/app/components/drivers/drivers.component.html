@@ -1,0 +1,11 @@
+@if (!initialized) {
+    <p>Loading...</p>
+} @else if (drivers) {
+    <ul>
+        @for (driver of drivers; track driver.driverNumber) {
+            <li>{{ driver.driverNumber }} - {{ driver.fullName }}</li>
+        }
+    </ul>
+} @else {
+    <p>No drivers</p>
+}
