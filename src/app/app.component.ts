@@ -1,5 +1,5 @@
 import { Component } from '@angular/core'
-import { RouterOutlet } from '@angular/router'
+import { Router, RouterOutlet } from '@angular/router'
 
 @Component({
     selector: 'app-root',
@@ -10,4 +10,12 @@ import { RouterOutlet } from '@angular/router'
 })
 export class AppComponent {
     title = 'f1assistant'
+
+    constructor(private router: Router) {
+
+    }
+
+    public goToPage(pageName: string) {
+        this.router.navigateByUrl(pageName)
+    }
 }

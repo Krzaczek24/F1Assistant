@@ -3,9 +3,22 @@
 } @else if (radioMessages) {
     <ul>
         @for (radioMessage of radioMessages; track $index) {
-            <li>{{ parser.formatDateTime(radioMessage.date) }} - <a [href]="radioMessage.recordingUrl">recording</a></li>
+            <li>
+                {{ parser.formatDateTime(radioMessage.date) }}
+                <br/>
+                <audio controls>
+                    <source [src]="radioMessage.recordingUrl" type="audio/mpeg" />
+                </audio>
+            </li>
         }
     </ul>
 } @else {
     <p>No drivers</p>
 }
+
+<h3>
+    <p>ToDo:</p>
+</h3>
+<ul>
+    <li>Autoodtwarzanie</li>
+</ul>

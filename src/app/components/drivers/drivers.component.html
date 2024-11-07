@@ -3,9 +3,16 @@
 } @else if (drivers) {
     <ul>
         @for (driver of drivers; track $index) {
-            <li>{{ driver.driverNumber }} - {{ driver.fullName }}</li>
+            <li>[{{ driver.driverNumber }}] {{ driver.fullName }} - {{ getCountry(driver.countryCode) }}<br/><img [src]="driver.headshotUrl"/></li>
         }
     </ul>
 } @else {
     <p>No drivers</p>
 }
+
+<h3>
+    <p>ToDo:</p>
+</h3>
+<ul>
+    <li>...</li>
+</ul>

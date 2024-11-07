@@ -11,7 +11,8 @@ import { TeamRadioProperties } from "./models/team-radio/team-radio.properties"
 
 const API_URL = "https://api.openf1.org/v1"
 
-type method = "get" | "post" | "put" | "patch"
+type HttpMethod = "get" | "post" | "put" | "patch"
+type ParamOperator = "=" | ">" | "<" | ">=" | "<="
 
 @Injectable({providedIn: 'root'})
 export class OpenF1Client {
@@ -34,7 +35,7 @@ export class OpenF1Client {
     public getTeamRadio(filters?: TeamRadioFilters): Observable<TeamRadio[]> {
         let url = '/team_radio'
         if (filters) {
-            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.date)
+            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.dateGreaterThan, '>')
             url = appendUrlParam(url, TeamRadioProperties.DRIVER_NUMBER, filters.driverNumber)
             url = appendUrlParam(url, TeamRadioProperties.MEETING_KEY, filters.meetingKey)
             url = appendUrlParam(url, TeamRadioProperties.SESSION_KEY, filters.sessionKey)
@@ -42,20 +43,20 @@ export class OpenF1Client {
         return this.makeRequest<TeamRadio>("get", url, TeamRadio.fromJS)
     }
 
-    private makeRequest<T>(method: method, endpoint: string, parser: (response: any) => T): Observable<T[]> {
+    private makeRequest<T>(method: HttpMethod, endpoint: string, parser: (response: any) => T): Observable<T[]> {
         return this.client.request(method, API_URL + endpoint)
             .pipe(map((response: any) => Array.isArray(response) ? response.map(parser) : []))
             .pipe(catchError((response: any) => throwException<T[]>(endpoint, response)))
     }
 }
 
-function appendUrlParam(url: string, paramName: string, parameterValue: number | string | boolean | Date | undefined): string {
+function appendUrlParam(url: string, paramName: string, parameterValue: number | string | boolean | Date | undefined, operator: ParamOperator = '='): string {
     if (parameterValue != null) {
         const concatenationChar = url.includes('?') ? '&' : '?'
         if (parameterValue instanceof Date) {
             parameterValue = DateTimeParser.formatDateTime(parameterValue)
         }
-        url += concatenationChar + paramName + '=' + parameterValue
+        url += concatenationChar + paramName + operator + parameterValue
     }
     return url
 }

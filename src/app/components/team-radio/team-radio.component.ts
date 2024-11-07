@@ -27,6 +27,18 @@ export class TeamRadioComponent {
         }).subscribe(radioMessages => {
             this.radioMessages = radioMessages.sort()
             this.initialized = true
+            this.loadNewMessages()
+        })
+    }
+
+    private loadNewMessages() {
+        this.client.getTeamRadio({
+            sessionKey: 'latest',
+            driverNumber: 1,
+            dateGreaterThan: this.radioMessages?.at(-1)?.date
+        }).subscribe(radioMessages => {
+            this.radioMessages?.push(...radioMessages.sort())
+            setTimeout(() => this.loadNewMessages(), 2500)
         })
     }
 }
