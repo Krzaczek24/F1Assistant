@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
-import { OpenF1Client } from '../../clients/open-f1.client'
-import { Driver } from '../../models/driver.model'
+import { OpenF1Client } from '../../clients/open-f1/open-f1.client'
+import { Driver } from '../../clients/open-f1/models/driver/driver.model'
 
 @Component({
     selector: 'app-drivers',
@@ -10,15 +10,15 @@ import { Driver } from '../../models/driver.model'
     styleUrl: './drivers.component.css'
 })
 export class DriversComponent implements OnInit {
-    public drivers?: Driver[]
     public initialized: boolean = false
+    public drivers?: Driver[]
 
     constructor(private client: OpenF1Client) {
 
     }
 
     ngOnInit(): void {
-        this.client.getDrivers().subscribe(drivers => {
+        this.client.getDrivers({ sessionKey: 'latest' }).subscribe(drivers => {
             this.drivers = drivers
             this.initialized = true
         })

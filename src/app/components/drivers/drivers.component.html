@@ -2,7 +2,7 @@
     <p>Loading...</p>
 } @else if (drivers) {
     <ul>
-        @for (driver of drivers; track driver.driverNumber) {
+        @for (driver of drivers; track $index) {
             <li>{{ driver.driverNumber }} - {{ driver.fullName }}</li>
         }
     </ul>
