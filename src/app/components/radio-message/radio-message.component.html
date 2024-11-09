@@ -1,0 +1,19 @@
+<div class="radio-message-container">
+    <div class="message-timestamp">
+        <p>{{ parser.formatDateTime(radioMessage.date) }} - (playing: {{ radioMessage.isPlaying }})</p>
+    </div>
+    <div class="message-player-container">
+        <div class="message-player">
+            <audio #player controls>
+                <source [src]="radioMessage.recordingUrl" type="audio/mpeg" />
+            </audio>
+        </div>
+        <div class="message-listened">
+            @if (radioMessage.listened) {
+                <p>✔️</p>
+            } @else {
+                <p>❌</p>
+            }
+        </div>
+    </div>
+</div>

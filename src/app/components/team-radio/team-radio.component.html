@@ -1,19 +1,19 @@
 @if (!initialized) {
     <p>Loading...</p>
 } @else if (radioMessages) {
+    <div class="buttons">
+        <button (click)="markAllAsListened()">mark all as listened</button>
+        <button (click)="playAll()">play all</button>
+    </div>
     <ul>
         @for (radioMessage of radioMessages; track $index) {
             <li>
-                {{ parser.formatDateTime(radioMessage.date) }}
-                <br/>
-                <audio controls>
-                    <source [src]="radioMessage.recordingUrl" type="audio/mpeg" />
-                </audio>
+                <app-radio-message [radioMessage]="radioMessage" (onListened)="playNextOf($event)" [requestPlayEmitter]="requestPlayEmitter" />
             </li>
         }
     </ul>
 } @else {
-    <p>No drivers</p>
+    <p>No team messages</p>
 }
 
 <h3>
