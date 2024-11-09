@@ -4,6 +4,8 @@
     <div class="buttons">
         <button (click)="markAllAsListened()">mark all as listened</button>
         <button (click)="playAll()">play all</button>
+        <input id="autoplay-checkbox" type="checkbox" [checked]="autoplay" (change)="autoplay = !autoplay">
+        <label for="autoplay-checkbox">autoplay</label>
     </div>
     <ul>
         @for (radioMessage of radioMessages; track $index) {

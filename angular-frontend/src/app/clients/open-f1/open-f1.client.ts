@@ -8,16 +8,15 @@ import { TeamRadio } from "./models/team-radio/team-radio.model"
 import { TeamRadioFilters } from "./models/team-radio/team-radio.filters"
 import { DriverFilters } from "./models/driver/driver.filters"
 import { TeamRadioProperties } from "./models/team-radio/team-radio.properties"
-
-const API_URL = "https://api.openf1.org/v1"
+import { environment } from "../../../environments/environment"
 
 type HttpMethod = "get" | "post" | "put" | "patch"
 type ParamOperator = "=" | ">" | "<" | ">=" | "<="
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class OpenF1Client {
     constructor(private client: HttpClient) {
-        // RADIO potem POZYCJE
+        
     }
 
     public getDrivers(filters?: DriverFilters): Observable<Driver[]> {
@@ -44,7 +43,7 @@ export class OpenF1Client {
     }
 
     private makeRequest<T>(method: HttpMethod, endpoint: string, parser: (response: any) => T): Observable<T[]> {
-        return this.client.request(method, API_URL + endpoint)
+        return this.client.request(method, environment.apiUrl + endpoint)
             .pipe(map((response: any) => Array.isArray(response) ? response.map(parser) : []))
             .pipe(catchError((response: any) => throwException<T[]>(endpoint, response)))
     }
