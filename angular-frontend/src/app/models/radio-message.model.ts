@@ -1,4 +1,5 @@
 import { TeamRadio } from "../clients/open-f1/models/team-radio/team-radio.model"
+import { guid } from "../tools/guid.tools"
 
 export class RadioMessage {
     private _date: Date
@@ -32,7 +33,7 @@ export class RadioMessage {
         this._recordingUrl = recordingUrl
         this._isPlaying = false
         this._listened = listened
-        this._guid = self.crypto.randomUUID()
+        this._guid = guid()
     }
 
     public setListened() {

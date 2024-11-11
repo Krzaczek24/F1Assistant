@@ -65,8 +65,8 @@ export class TeamRadioComponent {
 
         this.meetingService.getMeetings(year).subscribe(meetings => {
             this.meetings = meetings
-            const latestMeetingKey = meetings.at(-1)!.meetingKey
-            this.form.get('meetingKey')!.setValue(latestMeetingKey)
+            const meetingKey = meetings.at(-1)!.meetingKey
+            this.form.get('meetingKey')!.setValue(meetingKey)
 
             this.onMeetingChanged()
         })
@@ -78,8 +78,8 @@ export class TeamRadioComponent {
 
         this.sessionService.getSessions(meetingKey).subscribe(sessions => {
             this.sessions = sessions
-            const latestSessionKey = sessions.at(-1)!.sessionKey
-            this.form.get('sessionKey')!.setValue(latestSessionKey)
+            const sessionKey = sessions.at(-1)!.sessionKey
+            this.form.get('sessionKey')!.setValue(sessionKey)
 
             this.onSessionChanged()
         })
