@@ -1,5 +1,7 @@
 using ApiMock.Middlewares;
+using ApiMock.Services;
 using ApiMock.Settings;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ApiMock
 {
@@ -9,6 +11,8 @@ namespace ApiMock
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers(options => options.Conventions.AddSnakeCaseNamingPolicy());
+            builder.Services.AddMemoryCache();
+            builder.Services.AddSingleton<IDataService, DataService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();

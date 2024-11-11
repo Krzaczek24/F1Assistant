@@ -2,7 +2,8 @@
 {
     public abstract class Operator
     {
-        public abstract bool Compute<T>(T objA, T objB) where T : IComparable<T>;
+        public bool Compute(IComparable objA, object objB) => objA != null && IsConditionMet(objA.CompareTo(objB));
+        protected abstract bool IsConditionMet(int compareResult);
 
         public static Operator FromChars(string chars) => chars switch
         {
@@ -22,27 +23,27 @@
 
         private class EqualsOperator : Operator
         {
-            public override bool Compute<T>(T objA, T objB) => objA.CompareTo(objB) == 0;
+            protected override bool IsConditionMet(int compareResult) => compareResult == 0;
         }
 
         private class LesserThanOperator : Operator
         {
-            public override bool Compute<T>(T objA, T objB) => objA.CompareTo(objB) == -1;
+            protected override bool IsConditionMet(int compareResult) => compareResult == -1;
         }
 
         private class GreaterThanOperator : Operator
         {
-            public override bool Compute<T>(T objA, T objB) => objA.CompareTo(objB) == 1;
+            protected override bool IsConditionMet(int compareResult) => compareResult == 1;
         }
 
         private class LesserThanOrEqualOperator : Operator
         {
-            public override bool Compute<T>(T objA, T objB) => objA.CompareTo(objB) < 1;
+            protected override bool IsConditionMet(int compareResult) => compareResult < 1;
         }
 
         private class GreaterThanOrEqualOperator : Operator
         {
-            public override bool Compute<T>(T objA, T objB) => objA.CompareTo(objB) > -1;
+            protected override bool IsConditionMet(int compareResult) => compareResult > -1;
         }
     }
 }
