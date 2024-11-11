@@ -1,26 +1,66 @@
-@if (!initialized) {
-    <p>Loading...</p>
-} @else if (radioMessages) {
-    <div class="buttons">
-        <button (click)="markAllAsListened()">mark all as listened</button>
-        <button (click)="playAll()">play all</button>
-        <input id="autoplay-checkbox" type="checkbox" [checked]="autoplay" (change)="autoplay = !autoplay">
-        <label for="autoplay-checkbox">autoplay</label>
-    </div>
-    <ul>
-        @for (radioMessage of radioMessages; track $index) {
-            <li>
-                <app-radio-message [radioMessage]="radioMessage" (onListened)="playNextOf($event)" [requestPlayEmitter]="requestPlayEmitter" />
-            </li>
+<form [formGroup]="form">
+    <label for="year-selector">year:</label>
+    <select id="year-selector" formControlName="year" (change)="onYearChanged()">
+        @for (year of getYearsRange(); track year) {
+            <option [value]="year">{{year}}</option>
         }
-    </ul>
-} @else {
-    <p>No team messages</p>
-}
+    </select>
 
-<h3>
-    <p>ToDo:</p>
-</h3>
-<ul>
-    <li>Autoodtwarzanie</li>
-</ul>
+    <br />
+
+    <label for="meeting-selector">meeting:</label>
+    <select id="meeting-selector" formControlName="meetingKey" (change)="onMeetingChanged()">
+        @for (meeting of meetings; track meeting.meetingKey) {
+            <option [value]="meeting.meetingKey">{{meeting.meetingName}}</option>
+        }
+    </select>
+
+    <br />
+
+    <label for="session-selector">session:</label>
+    <select id="session-selector" formControlName="sessionKey" (change)="onSessionChanged()">
+        @for (session of sessions; track session.sessionKey) {
+            <option [value]="session.sessionKey">{{session.sessionName}}</option>
+        }
+    </select>
+
+    <br />
+
+    <label for="driver-selector">driver:</label>
+    <select id="driver-selector" formControlName="driverNumber" (change)="onDriverChanged()">
+        @for (driver of drivers; track driver.driverNumber) {
+            <option [value]="driver.driverNumber">{{driver.fullName}}</option>
+        }
+    </select>
+
+    @if (selectedDriver) {
+        <br/>
+        <img [src]="selectedDriver.headshotUrl"/>
+        <br/>
+        {{selectedDriver.countryCode | countryName}} <span [class]="'fi fi-' + (selectedDriver.countryCode | countryShortCode)"></span>
+        <br/>
+        <span>No.:{{selectedDriver.driverNumber | numberToEmoji}}</span>
+        <br/>
+        <span>Team: {{selectedDriver.teamName}}</span>
+    }
+
+    @if (loading) {
+        <p>Loading...</p>
+    } @else if (radioMessages) {
+        <div class="buttons">
+            <button (click)="markAllAsListened()">mark all as listened</button>
+            <button (click)="playAll()">play all</button>
+            <input id="autoplay-checkbox" type="checkbox" [checked]="autoplay" (change)="autoplay = !autoplay">
+            <label for="autoplay-checkbox">autoplay</label>
+        </div>
+        <ul>
+            @for (radioMessage of radioMessages; track $index) {
+                <li>
+                    <app-radio-message [radioMessage]="radioMessage" (onListened)="playNextOf($event)" [requestPlayEmitter]="requestPlayEmitter" />
+                </li>
+            }
+        </ul>
+    } @else {
+        <p>No team messages</p>
+    }
+</form>

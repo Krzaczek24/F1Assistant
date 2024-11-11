@@ -1,43 +1,129 @@
 import { Component, EventEmitter } from '@angular/core'
-import { OpenF1Client } from '../../clients/open-f1/open-f1.client'
 import { RadioMessageComponent } from "../radio-message/radio-message.component";
 import { RadioMessage } from '../../models/radio-message.model'
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
+import { generateRange } from '../../tools/array.tools'
+import { MeetingService } from '../../services/meeting.service'
+import { CommonModule } from '@angular/common'
+import { Meeting } from '../../clients/open-f1/models/meeting/meeting.model'
+import { SessionService } from '../../services/session.service'
+import { Session } from '../../clients/open-f1/models/session/session.model'
+import { TeamRadioService } from '../../services/team-radio.service'
+import { DriverService } from '../../services/driver.service'
+import { Driver } from '../../clients/open-f1/models/driver/driver.model'
+import { CountryCodeToShortCodePipe, CountryCodeToNamePipe } from "../../pipes/country.pipes";
+import { NumberToEmojiPipe } from "../../pipes/numbers.pipes";
+import { dateFromNow } from '../../tools/date.tools'
+
+const SECOND = 1000
+const MINUTE = 60 * SECOND
+const REFRESH_RATE = 3 * SECOND
 
 @Component({
     selector: 'app-team-radio',
     standalone: true,
-    imports: [RadioMessageComponent],
+    imports: [CommonModule, RadioMessageComponent, ReactiveFormsModule, CountryCodeToShortCodePipe, NumberToEmojiPipe, CountryCodeToNamePipe],
     templateUrl: './team-radio.component.html',
     styleUrl: './team-radio.component.css'
 })
 export class TeamRadioComponent {
-    public initialized: boolean = false
-    public radioMessages?: RadioMessage[]
-    public requestPlayEmitter = new EventEmitter<string>()
+    public loading: boolean = true
     public autoplay: boolean = true
+    public requestPlayEmitter = new EventEmitter<string>()
 
-    constructor(private client: OpenF1Client) {
+    public form = new FormGroup({
+        year: new FormControl(new Date().getFullYear()),
+        meetingKey: new FormControl<number>(0),
+        sessionKey: new FormControl<number>(0),
+        driverNumber: new FormControl<number>(0),
+    })
+
+    public meetings?: Meeting[]
+    public sessions?: Session[]
+    public drivers?: Driver[]
+    public radioMessages?: RadioMessage[]
+    public selectedDriver?: Driver
+
+    private ping?: NodeJS.Timeout;
+
+    constructor(
+        private meetingService: MeetingService,
+        private sessionService: SessionService,
+        private driverService: DriverService,
+        private teamRadioService: TeamRadioService
+    ) {
 
     }
 
     ngOnInit(): void {
-        this.client.getTeamRadio({
-            sessionKey: 'latest',
-            driverNumber: 1
-        }).subscribe(radioMessages => {
-            this.radioMessages = radioMessages.sort().map(teamRadio => new RadioMessage(teamRadio, true))
-            this.initialized = true
-            setTimeout(() => this.loadNewMessages(), 2000)
+        this.onYearChanged()
+    }
+
+    public onYearChanged() {
+        this.loading = true
+        const year = this.form.get('year')!.value!
+
+        this.meetingService.getMeetings(year).subscribe(meetings => {
+            this.meetings = meetings
+            const latestMeetingKey = meetings.at(-1)!.meetingKey
+            this.form.get('meetingKey')!.setValue(latestMeetingKey)
+
+            this.onMeetingChanged()
+        })
+    }
+
+    public onMeetingChanged() {
+        this.loading = true
+        const meetingKey = this.form.get('meetingKey')!.value!
+
+        this.sessionService.getSessions(meetingKey).subscribe(sessions => {
+            this.sessions = sessions
+            const latestSessionKey = sessions.at(-1)!.sessionKey
+            this.form.get('sessionKey')!.setValue(latestSessionKey)
+
+            this.onSessionChanged()
+        })
+    }
+
+    public onSessionChanged() {
+        this.loading = true
+        const sessionKey = this.form.get('sessionKey')!.value!
+
+        this.driverService.getDrivers(sessionKey).subscribe(drivers => {
+            this.drivers = drivers
+            const firstDriverNumber = drivers.at(0)!.driverNumber
+            this.form.get('driverNumber')!.setValue(firstDriverNumber)
+
+            this.onDriverChanged()
+        })
+    }
+
+    public onDriverChanged() {
+        this.loading = true
+        const sessionKey = this.form.get('sessionKey')!.value!
+        const driverNumber = this.form.get('driverNumber')!.value!
+
+        this.selectedDriver = this.drivers!.find(driver => driver.driverNumber == driverNumber)
+
+        this.teamRadioService.getTeamRadio(sessionKey, driverNumber).subscribe(radioMessages => {
+            if (radioMessages.length) {
+                this.radioMessages = radioMessages.sort().map(teamRadio => new RadioMessage(teamRadio, true))
+            }
+            
+            this.loading = false
+
+            clearTimeout(this.ping)
+            this.ping = setTimeout(() => this.loadNewMessages(), REFRESH_RATE)
         })
     }
 
     private loadNewMessages() {
-        this.client.getTeamRadio({
-            sessionKey: 'latest',
-            driverNumber: 1,
-            dateGreaterThan: this.radioMessages?.at(-1)?.date
-        }).subscribe(radioMessages => {
-            if (radioMessages.length > 0) {
+        const sessionKey = this.form.get('sessionKey')!.value!
+        const driverNumber = this.form.get('driverNumber')!.value!
+        const from = this.radioMessages?.at(-1)?.date ?? dateFromNow(-5 * MINUTE)
+        
+        this.teamRadioService.getTeamRadioNewMessages(sessionKey, driverNumber, from).subscribe(radioMessages => {
+            if (radioMessages?.length) {
                 const messages = radioMessages.sort().map(teamRadio => new RadioMessage(teamRadio, false))
                 const anyPlaying = this.radioMessages!.some(message => message.isPlaying)
                 this.radioMessages!.push(...messages)
@@ -47,7 +133,8 @@ export class TeamRadioComponent {
                 }
             }
             
-            setTimeout(() => this.loadNewMessages(), 2000)
+            clearTimeout(this.ping)
+            this.ping = setTimeout(() => this.loadNewMessages(), REFRESH_RATE)
         })
     }
 
@@ -71,5 +158,9 @@ export class TeamRadioComponent {
         if (firstMessage) {
             this.requestPlayEmitter.emit(firstMessage.guid)
         }
+    }
+
+    public getYearsRange(): Number[] {
+        return generateRange(2023, new Date().getFullYear())
     }
 }

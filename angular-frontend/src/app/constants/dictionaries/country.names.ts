@@ -1,4 +1,4 @@
-export const COUNTRY_DICTIONARY = {
+export const COUNTRY_NAMES = {
     "ABW": "Aruba",
     "AFG": "Afghanistan",
     "AGO": "Angola",

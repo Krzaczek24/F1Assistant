@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
-import { catchError, map, Observable, throwError } from "rxjs"
+import { catchError, map, Observable, retry, throwError } from "rxjs"
 import { Driver } from "./models/driver/driver.model"
 import { DriverProperties } from "./models/driver/driver.properties"
 import { DateTimeParser } from "./tools/datetime-parser"
@@ -9,6 +9,12 @@ import { TeamRadioFilters } from "./models/team-radio/team-radio.filters"
 import { DriverFilters } from "./models/driver/driver.filters"
 import { TeamRadioProperties } from "./models/team-radio/team-radio.properties"
 import { environment } from "../../../environments/environment"
+import { MeetingFilters } from "./models/meeting/meeting.filters"
+import { Meeting } from "./models/meeting/meeting.model"
+import { MeetingProperties } from "./models/meeting/meeting.properties"
+import { SessionFilters } from "./models/session/session.filters"
+import { Session } from "./models/session/session.model"
+import { SessionProperties } from "./models/session/session.properties"
 
 type HttpMethod = "get" | "post" | "put" | "patch"
 type ParamOperator = "=" | ">" | "<" | ">=" | "<="
@@ -42,9 +48,65 @@ export class OpenF1Client {
         return this.makeRequest<TeamRadio>("get", url, TeamRadio.fromJS)
     }
 
+    public getMeetings(filters?: MeetingFilters): Observable<Meeting[]> {
+        let url = '/meetings'
+        if (filters) {
+            url = appendUrlParam(url, MeetingProperties.CIRCUIT_KEY, filters.circuitKey)
+            url = appendUrlParam(url, MeetingProperties.CIRCUIT_SHORT_NAME, filters.circuitShortName)
+            url = appendUrlParam(url, MeetingProperties.COUNTRY_CODE, filters.countryCode)
+            url = appendUrlParam(url, MeetingProperties.COUNTRY_KEY, filters.countryKey)
+            url = appendUrlParam(url, MeetingProperties.COUNTRY_NAME, filters.countryName)
+            url = appendUrlParam(url, MeetingProperties.DATE_START, filters.dateStart, '=')
+            url = appendUrlParam(url, MeetingProperties.DATE_START, filters.dateStartGt, '>')
+            url = appendUrlParam(url, MeetingProperties.DATE_START, filters.dateStartGte, '>=')
+            url = appendUrlParam(url, MeetingProperties.DATE_START, filters.dateStartLt, '<')
+            url = appendUrlParam(url, MeetingProperties.DATE_START, filters.dateStartLte, '<=')
+            url = appendUrlParam(url, MeetingProperties.GMT_OFFSET, filters.circuitShortName)
+            url = appendUrlParam(url, MeetingProperties.CIRCUIT_SHORT_NAME, filters.circuitShortName)
+            url = appendUrlParam(url, MeetingProperties.MEETING_KEY, filters.meetingKey)
+            url = appendUrlParam(url, MeetingProperties.YEAR, filters.year, '=')
+            url = appendUrlParam(url, MeetingProperties.YEAR, filters.yearGt, '>')
+            url = appendUrlParam(url, MeetingProperties.YEAR, filters.yearGte, '>=')
+            url = appendUrlParam(url, MeetingProperties.YEAR, filters.yearLt, '<')
+            url = appendUrlParam(url, MeetingProperties.YEAR, filters.yearLte, '<=')
+        }
+        return this.makeRequest<Meeting>("get", url, Meeting.fromJS)
+    }
+
+    public getSessions(filters?: SessionFilters): Observable<Session[]> {
+        let url = '/sessions'
+        if (filters) {
+            url = appendUrlParam(url, SessionProperties.CIRCUIT_KEY, filters.circuitKey)
+            url = appendUrlParam(url, SessionProperties.CIRCUIT_SHORT_NAME, filters.circuitShortName)
+            url = appendUrlParam(url, SessionProperties.COUNTRY_CODE, filters.countryCode)
+            url = appendUrlParam(url, SessionProperties.COUNTRY_KEY, filters.countryKey)
+            url = appendUrlParam(url, SessionProperties.COUNTRY_NAME, filters.countryName)
+            url = appendUrlParam(url, SessionProperties.DATE_END, filters.dateEnd, '=')
+            url = appendUrlParam(url, SessionProperties.DATE_END, filters.dateEndGt, '>')
+            url = appendUrlParam(url, SessionProperties.DATE_END, filters.dateEndGte, '>=')
+            url = appendUrlParam(url, SessionProperties.DATE_END, filters.dateEndLt, '<')
+            url = appendUrlParam(url, SessionProperties.DATE_END, filters.dateEndLte, '<=')
+            url = appendUrlParam(url, SessionProperties.DATE_START, filters.dateStart, '=')
+            url = appendUrlParam(url, SessionProperties.DATE_START, filters.dateStartGt, '>')
+            url = appendUrlParam(url, SessionProperties.DATE_START, filters.dateStartGte, '>=')
+            url = appendUrlParam(url, SessionProperties.DATE_START, filters.dateStartLt, '<')
+            url = appendUrlParam(url, SessionProperties.DATE_START, filters.dateStartLte, '<=')
+            url = appendUrlParam(url, SessionProperties.GMT_OFFSET, filters.circuitShortName)
+            url = appendUrlParam(url, SessionProperties.CIRCUIT_SHORT_NAME, filters.circuitShortName)
+            url = appendUrlParam(url, SessionProperties.MEETING_KEY, filters.meetingKey)
+            url = appendUrlParam(url, SessionProperties.YEAR, filters.year, '=')
+            url = appendUrlParam(url, SessionProperties.YEAR, filters.yearGt, '>')
+            url = appendUrlParam(url, SessionProperties.YEAR, filters.yearGte, '>=')
+            url = appendUrlParam(url, SessionProperties.YEAR, filters.yearLt, '<')
+            url = appendUrlParam(url, SessionProperties.YEAR, filters.yearLte, '<=')
+        }
+        return this.makeRequest<Session>("get", url, Session.fromJS)
+    }
+
     private makeRequest<T>(method: HttpMethod, endpoint: string, parser: (response: any) => T): Observable<T[]> {
         return this.client.request(method, environment.apiUrl + endpoint)
             .pipe(map((response: any) => Array.isArray(response) ? response.map(parser) : []))
+            .pipe(retry({ count: 10, delay: 500, resetOnSuccess: true }))
             .pipe(catchError((response: any) => throwException<T[]>(endpoint, response)))
     }
 }

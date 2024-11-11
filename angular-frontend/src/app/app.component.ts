@@ -9,13 +9,5 @@ import { Router, RouterOutlet } from '@angular/router'
     styleUrl: './app.component.css'
 })
 export class AppComponent {
-    title = 'f1assistant'
-
-    constructor(private router: Router) {
-
-    }
-
-    public goToPage(pageName: string) {
-        this.router.navigateByUrl(pageName)
-    }
+    
 }
