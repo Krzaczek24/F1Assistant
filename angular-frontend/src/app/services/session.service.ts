@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core"
 import { OpenF1Client } from "../clients/open-f1/open-f1.client"
-import { Observable, of, shareReplay, tap } from "rxjs"
+import { Observable, of, map, tap } from "rxjs"
 import { Session } from "../clients/open-f1/models/session/session.model"
 
 @Injectable({ providedIn: 'root' })
@@ -18,5 +18,13 @@ export class SessionService {
 
         return this.client.getSessions({ meetingKey })
             .pipe(tap(response => this.cache[meetingKey] = response))
+    }
+
+    public isActive(sessionKey: number): Observable<boolean> {
+        return this.client.getSessions({ sessionKey })
+            .pipe(map(sessions => {
+                const session = sessions.at(0)
+                return session?.dateEnd != null && session.dateEnd <= new Date()
+            }))
     }
 }

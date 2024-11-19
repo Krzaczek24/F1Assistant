@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core"
 import { OpenF1Client } from "../clients/open-f1/open-f1.client"
 import { Driver } from "../clients/open-f1/models/driver/driver.model"
-import { Observable, of, publishReplay, shareReplay, tap } from "rxjs"
+import { Observable, of, tap } from "rxjs"
 
 @Injectable({ providedIn: 'root' })
 export class DriverService {

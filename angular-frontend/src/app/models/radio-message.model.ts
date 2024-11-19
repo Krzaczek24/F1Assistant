@@ -3,29 +3,19 @@ import { guid } from "../tools/guid.tools"
 
 export class RadioMessage {
     private _date: Date
-    public get date() {
-        return this._date
-    }
+    public get date() { return this._date }
 
     private _guid: string
-    public get guid() {
-        return this._guid
-    }
+    public get guid() { return this._guid }
 
     private _isPlaying: boolean
-    public get isPlaying() {
-        return this._isPlaying
-    }
+    public get isPlaying() { return this._isPlaying }
 
     private _listened: boolean
-    public get listened() {
-        return this._listened
-    }
+    public get listened() { return this._listened }
 
     private _recordingUrl: string
-    public get recordingUrl() {
-        return this._recordingUrl
-    }
+    public get recordingUrl() { return this._recordingUrl }
 
     constructor(teamRadio: TeamRadio, listened: boolean) {
         const { date, recordingUrl } = teamRadio

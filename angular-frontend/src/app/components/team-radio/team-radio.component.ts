@@ -13,10 +13,9 @@ import { DriverService } from '../../services/driver.service'
 import { Driver } from '../../clients/open-f1/models/driver/driver.model'
 import { CountryCodeToShortCodePipe, CountryCodeToNamePipe } from "../../pipes/country.pipes";
 import { NumberToEmojiPipe } from "../../pipes/numbers.pipes";
-import { dateFromNow } from '../../tools/date.tools'
+import { BEGINING_YEAR } from '../../constants/values/beginning-year'
 
 const SECOND = 1000
-const MINUTE = 60 * SECOND
 const REFRESH_RATE = 3 * SECOND
 
 @Component({
@@ -120,9 +119,8 @@ export class TeamRadioComponent {
     private loadNewMessages() {
         const sessionKey = this.form.get('sessionKey')!.value!
         const driverNumber = this.form.get('driverNumber')!.value!
-        const from = this.radioMessages?.at(-1)?.date ?? dateFromNow(-5 * MINUTE)
         
-        this.teamRadioService.getTeamRadioNewMessages(sessionKey, driverNumber, from).subscribe(radioMessages => {
+        this.teamRadioService.getTeamRadioNewMessages(sessionKey, driverNumber).subscribe(radioMessages => {
             if (radioMessages?.length) {
                 const messages = radioMessages.sort().map(teamRadio => new RadioMessage(teamRadio, false))
                 const anyPlaying = this.radioMessages!.some(message => message.isPlaying)
@@ -161,6 +159,6 @@ export class TeamRadioComponent {
     }
 
     public getYearsRange(): Number[] {
-        return generateRange(2023, new Date().getFullYear())
+        return generateRange(BEGINING_YEAR, new Date().getFullYear())
     }
 }

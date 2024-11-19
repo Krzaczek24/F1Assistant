@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core"
 import { OpenF1Client } from "../clients/open-f1/open-f1.client"
-import { Observable, of, shareReplay, tap } from "rxjs"
+import { Observable, of, tap } from "rxjs"
 import { TeamRadio } from "../clients/open-f1/models/team-radio/team-radio.model"
 
 @Injectable({ providedIn: 'root' })
@@ -22,10 +22,11 @@ export class TeamRadioService {
             .pipe(tap(response => this.cache[key] = response))
     }
 
-    public getTeamRadioNewMessages(sessionKey: number, driverNumber: number, from: Date): Observable<TeamRadio[]> {
+    public getTeamRadioNewMessages(sessionKey: number, driverNumber: number): Observable<TeamRadio[]> {
         const key = this.buildKey(sessionKey, driverNumber)
+        const last = this.cache[key]?.at(-1)?.date
 
-        return this.client.getTeamRadio({ sessionKey, driverNumber, dateGreaterThan: from })
+        return this.client.getTeamRadio({ sessionKey, driverNumber, dateGt: last })
             .pipe(tap(response => this.cache[key].push(...response)))
     }
 

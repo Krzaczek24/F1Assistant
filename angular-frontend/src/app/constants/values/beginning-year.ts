@@ -1,0 +1,1 @@
+export const BEGINING_YEAR = 2023

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core"
 import { OpenF1Client } from "../clients/open-f1/open-f1.client"
 import { Meeting } from "../clients/open-f1/models/meeting/meeting.model"
-import { Observable, of, shareReplay, tap } from "rxjs"
+import { Observable, of, tap } from "rxjs"
 
 @Injectable({ providedIn: 'root' })
 export class MeetingService {

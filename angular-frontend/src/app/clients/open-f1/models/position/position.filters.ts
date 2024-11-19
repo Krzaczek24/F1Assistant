@@ -1,6 +1,6 @@
 import { Latest } from "../_common/common.filters"
 
-export interface TeamRadioFilters {
+export interface PositionFilters {
     date?: Date | Latest
     dateGt?: Date
     dateGte?: Date
@@ -8,5 +8,6 @@ export interface TeamRadioFilters {
     dateLte?: Date
     driverNumber?: number
     meetingKey?: number | Latest
+    position?: number
     sessionKey?: number | Latest
 }

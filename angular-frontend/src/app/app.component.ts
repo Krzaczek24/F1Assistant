@@ -9,5 +9,11 @@ import { Router, RouterOutlet } from '@angular/router'
     styleUrl: './app.component.css'
 })
 export class AppComponent {
-    
+    constructor(public router: Router) {
+
+    }
+
+    public goToUrl(url: string) {
+        window.location.href = url
+    }
 }

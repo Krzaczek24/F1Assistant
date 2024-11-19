@@ -1,23 +1,31 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { catchError, map, Observable, retry, throwError } from "rxjs"
-import { Driver } from "./models/driver/driver.model"
-import { DriverProperties } from "./models/driver/driver.properties"
 import { DateTimeParser } from "./tools/datetime-parser"
+import { environment } from "../../../environments/environment"
+// === DRIVER ===
+import { Driver } from "./models/driver/driver.model"
+import { DriverFilters } from "./models/driver/driver.filters"
+import { DriverProperties } from "./models/driver/driver.properties"
+// === MEETING ===
+import { Meeting } from "./models/meeting/meeting.model"
+import { MeetingFilters } from "./models/meeting/meeting.filters"
+import { MeetingProperties } from "./models/meeting/meeting.properties"
+// === POSITION ===
+import { Position } from "./models/position/position.model"
+import { PositionFilters } from "./models/position/position.filters"
+import { PositionProperties } from "./models/position/position.properties"
+// === TEAM RADIO ===
 import { TeamRadio } from "./models/team-radio/team-radio.model"
 import { TeamRadioFilters } from "./models/team-radio/team-radio.filters"
-import { DriverFilters } from "./models/driver/driver.filters"
 import { TeamRadioProperties } from "./models/team-radio/team-radio.properties"
-import { environment } from "../../../environments/environment"
-import { MeetingFilters } from "./models/meeting/meeting.filters"
-import { Meeting } from "./models/meeting/meeting.model"
-import { MeetingProperties } from "./models/meeting/meeting.properties"
-import { SessionFilters } from "./models/session/session.filters"
+// === SESSION ===
 import { Session } from "./models/session/session.model"
+import { SessionFilters } from "./models/session/session.filters"
 import { SessionProperties } from "./models/session/session.properties"
 
-type HttpMethod = "get" | "post" | "put" | "patch"
-type ParamOperator = "=" | ">" | "<" | ">=" | "<="
+type HttpMethod = 'get' | 'post' | 'put' | 'patch'
+type ParamOperator = '=' | '>' | '<' | '>=' | '<='
 
 @Injectable({ providedIn: 'root' })
 export class OpenF1Client {
@@ -26,7 +34,7 @@ export class OpenF1Client {
     }
 
     public getDrivers(filters?: DriverFilters): Observable<Driver[]> {
-        let url = "/drivers"
+        let url = '/drivers'
         if (filters) {
             url = appendUrlParam(url, DriverProperties.DRIVER_NUMBER, filters.driverNumber)
             url = appendUrlParam(url, DriverProperties.MEETING_KEY, filters.meetingKey)
@@ -34,18 +42,38 @@ export class OpenF1Client {
             url = appendUrlParam(url, DriverProperties.NAME_ACRONYM, filters.nameAcronym)
             url = appendUrlParam(url, DriverProperties.TEAM_NAME, filters.teamName)
         }
-        return this.makeRequest<Driver>("get", url, Driver.fromJS)
+        return this.makeRequest<Driver>('get', url, Driver.fromJS)
+    }
+
+    public getPositions(filters?: PositionFilters): Observable<Position[]> {
+        let url = '/position'
+        if (filters) {
+            url = appendUrlParam(url, PositionProperties.DATE, filters.date, '=')
+            url = appendUrlParam(url, PositionProperties.DATE, filters.dateGt, '>')
+            url = appendUrlParam(url, PositionProperties.DATE, filters.dateGte, '>=')
+            url = appendUrlParam(url, PositionProperties.DATE, filters.dateLt, '<')
+            url = appendUrlParam(url, PositionProperties.DATE, filters.dateLte, '<=')
+            url = appendUrlParam(url, PositionProperties.DRIVER_NUMBER, filters.driverNumber)
+            url = appendUrlParam(url, PositionProperties.MEETING_KEY, filters.meetingKey)
+            url = appendUrlParam(url, PositionProperties.POSITION, filters.position)
+            url = appendUrlParam(url, PositionProperties.SESSION_KEY, filters.sessionKey)
+        }
+        return this.makeRequest<Position>('get', url, Position.fromJS)
     }
 
     public getTeamRadio(filters?: TeamRadioFilters): Observable<TeamRadio[]> {
         let url = '/team_radio'
         if (filters) {
-            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.dateGreaterThan, '>')
+            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.date, '=')
+            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.dateGt, '>')
+            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.dateGte, '>=')
+            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.dateLt, '<')
+            url = appendUrlParam(url, TeamRadioProperties.DATE, filters.dateLte, '<=')
             url = appendUrlParam(url, TeamRadioProperties.DRIVER_NUMBER, filters.driverNumber)
             url = appendUrlParam(url, TeamRadioProperties.MEETING_KEY, filters.meetingKey)
             url = appendUrlParam(url, TeamRadioProperties.SESSION_KEY, filters.sessionKey)
         }
-        return this.makeRequest<TeamRadio>("get", url, TeamRadio.fromJS)
+        return this.makeRequest<TeamRadio>('get', url, TeamRadio.fromJS)
     }
 
     public getMeetings(filters?: MeetingFilters): Observable<Meeting[]> {
@@ -70,7 +98,7 @@ export class OpenF1Client {
             url = appendUrlParam(url, MeetingProperties.YEAR, filters.yearLt, '<')
             url = appendUrlParam(url, MeetingProperties.YEAR, filters.yearLte, '<=')
         }
-        return this.makeRequest<Meeting>("get", url, Meeting.fromJS)
+        return this.makeRequest<Meeting>('get', url, Meeting.fromJS)
     }
 
     public getSessions(filters?: SessionFilters): Observable<Session[]> {
@@ -100,7 +128,7 @@ export class OpenF1Client {
             url = appendUrlParam(url, SessionProperties.YEAR, filters.yearLt, '<')
             url = appendUrlParam(url, SessionProperties.YEAR, filters.yearLte, '<=')
         }
-        return this.makeRequest<Session>("get", url, Session.fromJS)
+        return this.makeRequest<Session>('get', url, Session.fromJS)
     }
 
     private makeRequest<T>(method: HttpMethod, endpoint: string, parser: (response: any) => T): Observable<T[]> {

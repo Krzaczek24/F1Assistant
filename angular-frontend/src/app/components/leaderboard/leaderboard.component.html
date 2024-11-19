@@ -1,0 +1,42 @@
+<form [formGroup]="form">
+    <label for="year-selector">year:</label>
+    <select id="year-selector" formControlName="year" (change)="onYearChanged()">
+        @for (year of getYearsRange(); track year) {
+            <option [value]="year">{{year}}</option>
+        }
+    </select>
+
+    <br />
+
+    <label for="meeting-selector">meeting:</label>
+    <select id="meeting-selector" formControlName="meetingKey" (change)="onMeetingChanged()">
+        @for (meeting of meetings; track meeting.meetingKey) {
+            <option [value]="meeting.meetingKey">{{meeting.meetingName}}</option>
+        }
+    </select>
+
+    <br />
+
+    <label for="session-selector">session:</label>
+    <select id="session-selector" formControlName="sessionKey" (change)="onSessionChanged()">
+        @for (session of sessions; track session.sessionKey) {
+            <option [value]="session.sessionKey">{{session.sessionName}}</option>
+        }
+    </select>
+
+    <br />
+
+    
+
+    @if (loading) {
+        <p>Loading...</p>
+    } @else if (leaderboard) {
+        <ul>
+            @for (record of leaderboard; track $index) {
+                <li>{{record.position}}. {{record.driver.fullName}}</li>
+            }
+        </ul>
+    } @else {
+        <p>No leaderboard</p>
+    }
+</form>
