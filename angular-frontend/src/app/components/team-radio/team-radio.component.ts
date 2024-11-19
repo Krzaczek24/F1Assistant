@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core'
+import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core'
 import { RadioMessageComponent } from "../radio-message/radio-message.component";
 import { RadioMessage } from '../../models/radio-message.model'
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
@@ -25,7 +25,7 @@ const REFRESH_RATE = 3 * SECOND
     templateUrl: './team-radio.component.html',
     styleUrl: './team-radio.component.css'
 })
-export class TeamRadioComponent {
+export class TeamRadioComponent implements OnInit, OnDestroy {
     public loading: boolean = true
     public autoplay: boolean = true
     public requestPlayEmitter = new EventEmitter<string>()
@@ -56,6 +56,12 @@ export class TeamRadioComponent {
 
     ngOnInit(): void {
         this.onYearChanged()
+    }
+
+    ngOnDestroy(): void {
+        if (this.ping) {
+            clearTimeout(this.ping)
+        }
     }
 
     public onYearChanged() {

@@ -12,7 +12,11 @@ export class LeaderboardRecord {
     public get initialPosition() { return this._positions.at(0) }
     public get lowestPosition() { return Math.min(...this._positions) }
 
-    public set position(value) { this._positions.push(value) }
+    public set position(value) {
+        if (value !== this.position) {
+            this._positions.push(value)
+        }
+    }
 
     constructor(driver: Driver, position: number) {
         this._driver = driver
